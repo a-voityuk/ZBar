@@ -34,10 +34,10 @@ static inline AVCaptureDevicePosition
 AVPositionForUICamera (UIImagePickerControllerCameraDevice camera)
 {
     switch(camera) {
-    case UIImagePickerControllerCameraDeviceRear:
-        return(AVCaptureDevicePositionBack);
-    case UIImagePickerControllerCameraDeviceFront:
-        return(AVCaptureDevicePositionFront);
+        case UIImagePickerControllerCameraDeviceRear:
+            return(AVCaptureDevicePositionBack);
+        case UIImagePickerControllerCameraDeviceFront:
+            return(AVCaptureDevicePositionFront);
     }
     return(-1);
 }
@@ -47,10 +47,10 @@ UICameraForAVPosition (AVCaptureDevicePosition position)
 {
     switch(position)
     {
-    case AVCaptureDevicePositionBack:
-        return(UIImagePickerControllerCameraDeviceRear);
-    case AVCaptureDevicePositionFront:
-        return(UIImagePickerControllerCameraDeviceFront);
+        case AVCaptureDevicePositionBack:
+            return(UIImagePickerControllerCameraDeviceRear);
+        case AVCaptureDevicePositionFront:
+            return(UIImagePickerControllerCameraDeviceFront);
     }
     return(-1);
 }
@@ -61,10 +61,10 @@ AVDeviceForUICamera (UIImagePickerControllerCameraDevice camera)
     AVCaptureDevicePosition position = AVPositionForUICamera(camera);
     if(position < 0)
         return(nil);
-
+    
 #if !TARGET_IPHONE_SIMULATOR
     NSArray *allDevices =
-        [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
+    [AVCaptureDevice devicesWithMediaType: AVMediaTypeVideo];
     for(AVCaptureDevice *device in allDevices)
         // FIXME how to quantify "best" of several (theoretical) possibilities
         if(device.position == position)
@@ -78,12 +78,12 @@ AVTorchModeForUIFlashMode (UIImagePickerControllerCameraFlashMode mode)
 {
     switch(mode)
     {
-    case UIImagePickerControllerCameraFlashModeAuto:
-        return(AVCaptureTorchModeAuto);
-    case UIImagePickerControllerCameraFlashModeOn:
-        return(AVCaptureTorchModeOn);
-    case UIImagePickerControllerCameraFlashModeOff:
-        break;
+        case UIImagePickerControllerCameraFlashModeAuto:
+            return(AVCaptureTorchModeAuto);
+        case UIImagePickerControllerCameraFlashModeOn:
+            return(AVCaptureTorchModeOn);
+        case UIImagePickerControllerCameraFlashModeOff:
+            break;
     }
     return(AVCaptureTorchModeOff);
 }
@@ -94,18 +94,18 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 #if !TARGET_IPHONE_SIMULATOR
     switch(quality)
     {
-    case UIImagePickerControllerQualityTypeHigh:
-        return(AVCaptureSessionPresetHigh);
-    case UIImagePickerControllerQualityType640x480:
-        return(AVCaptureSessionPreset640x480);
-    case UIImagePickerControllerQualityTypeMedium:
-        return(AVCaptureSessionPresetMedium);
-    case UIImagePickerControllerQualityTypeLow:
-        return(AVCaptureSessionPresetLow);
-    case UIImagePickerControllerQualityTypeIFrame1280x720:
-        return(AVCaptureSessionPresetiFrame1280x720);
-    case UIImagePickerControllerQualityTypeIFrame960x540:
-        return(AVCaptureSessionPresetiFrame960x540);
+        case UIImagePickerControllerQualityTypeHigh:
+            return(AVCaptureSessionPresetHigh);
+        case UIImagePickerControllerQualityType640x480:
+            return(AVCaptureSessionPreset640x480);
+        case UIImagePickerControllerQualityTypeMedium:
+            return(AVCaptureSessionPresetMedium);
+        case UIImagePickerControllerQualityTypeLow:
+            return(AVCaptureSessionPresetLow);
+        case UIImagePickerControllerQualityTypeIFrame1280x720:
+            return(AVCaptureSessionPresetiFrame1280x720);
+        case UIImagePickerControllerQualityTypeIFrame960x540:
+            return(AVCaptureSessionPresetiFrame960x540);
     }
 #endif
     return(nil);
@@ -115,11 +115,11 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 @implementation ZBarReaderViewController
 
 @synthesize scanner, readerDelegate, showsZBarControls,
-    supportedOrientationsMask, tracksSymbols, enableCache, cameraOverlayView,
-    cameraViewTransform, cameraDevice, cameraFlashMode, videoQuality,
-    readerView, scanCrop;
+supportedOrientationsMask, tracksSymbols, enableCache, cameraOverlayView,
+cameraViewTransform, cameraDevice, cameraFlashMode, videoQuality,
+readerView, scanCrop, isRememerMeOn, animateRedLine;
 @dynamic sourceType, allowsEditing, allowsImageEditing, showsCameraControls,
-    showsHelpOnFail, cameraMode, takesPicture, maxScanDimension;
+showsHelpOnFail, cameraMode, takesPicture, maxScanDimension;
 
 + (BOOL) isSourceTypeAvailable: (UIImagePickerControllerSourceType) sourceType
 {
@@ -145,21 +145,21 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 {
     if(![self isCameraDeviceAvailable: camera])
         return([NSArray array]);
-
+    
     // current reader only supports automatic detection
     return([NSArray arrayWithObject:
-               [NSNumber numberWithInteger:
-                   UIImagePickerControllerCameraCaptureModeVideo]]);
+            [NSNumber numberWithInteger:
+             UIImagePickerControllerCameraCaptureModeVideo]]);
 }
 
 - (void) _init
 {
     supportedOrientationsMask =
-        ZBarOrientationMask(UIInterfaceOrientationPortrait);
+    ZBarOrientationMask(UIInterfaceOrientationPortrait);
     showsZBarControls = tracksSymbols = enableCache = YES;
     scanCrop = CGRectMake(0, 0, 1, 1);
     cameraViewTransform = CGAffineTransformIdentity;
-
+    
     cameraFlashMode = UIImagePickerControllerCameraFlashModeAuto;
     videoQuality = UIImagePickerControllerQualityType640x480;
     AVCaptureDevice *device = nil;
@@ -170,16 +170,16 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
         cameraDevice = UICameraForAVPosition(device.position);
     else
         cameraDevice = UIImagePickerControllerCameraDeviceRear;
-
+    
     // create our own scanner to store configuration,
     // independent of whether view is loaded
     scanner = [ZBarImageScanner new];
     [scanner setSymbology: 0
-             config: ZBAR_CFG_X_DENSITY
-             to: 3];
+                   config: ZBAR_CFG_X_DENSITY
+                       to: 3];
     [scanner setSymbology: 0
-             config: ZBAR_CFG_Y_DENSITY
-             to: 3];
+                   config: ZBAR_CFG_Y_DENSITY
+                       to: 3];
 }
 
 - (id) init
@@ -191,11 +191,11 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
         [self release];
         return((id)[ZBarReaderController new]);
     }
-
+    
     self = [super init];
     if(!self)
         return(nil);
-
+    
     self.wantsFullScreenLayout = YES;
     [self _init];
     return(self);
@@ -206,7 +206,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     self = [super initWithCoder: decoder];
     if(!self)
         return(nil);
-
+    
     [self _init];
     return(self);
 }
@@ -233,6 +233,8 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     cameraOverlayView = nil;
     [scanner release];
     scanner = nil;
+    [redLine release];
+    redLine = nil;
     [super dealloc];
 }
 
@@ -245,60 +247,181 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     }
     if(!showsZBarControls)
         return;
-
+    
     UIView *view = self.view;
     if(controls) {
         assert(controls.superview == view);
         [view bringSubviewToFront: controls];
         return;
     }
-
+    
+    self.view.backgroundColor = [UIColor greenColor];
+    
     CGRect r = view.bounds;
-    r.origin.y = r.size.height - 54;
-    r.size.height = 54;
-    controls = [[UIView alloc]
-                   initWithFrame: r];
-    controls.autoresizingMask =
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight |
-        UIViewAutoresizingFlexibleTopMargin;
-    controls.backgroundColor = [UIColor blackColor];
-
-    UIToolbar *toolbar =
-        [UIToolbar new];
+    r.origin.x = 0;
     r.origin.y = 0;
-    toolbar.frame = r;
-    toolbar.barStyle = UIBarStyleBlackOpaque;
-    toolbar.autoresizingMask =
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight;
-
-    UIButton *info =
-        [UIButton buttonWithType: UIButtonTypeInfoLight];
-    [info addTarget: self
-          action: @selector(info)
-          forControlEvents: UIControlEventTouchUpInside];
-
-    toolbar.items =
-        [NSArray arrayWithObjects:
-            [[[UIBarButtonItem alloc]
-                 initWithBarButtonSystemItem: UIBarButtonSystemItemCancel
-                 target: self
-                 action: @selector(cancel)]
-                autorelease],
-            [[[UIBarButtonItem alloc]
-                 initWithBarButtonSystemItem: UIBarButtonSystemItemFlexibleSpace
-                 target: nil
-                 action: nil]
-                autorelease],
-            [[[UIBarButtonItem alloc]
-                 initWithCustomView: info]
-                autorelease],
-            nil];
-    [controls addSubview: toolbar];
-    [toolbar release];
-
+    r.size.height = view.bounds.size.height;
+    r.size.width = view.bounds.size.width;
+    
+    controls = [[UIView alloc] initWithFrame: r];
+    controls.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleTopMargin;
+    controls.backgroundColor = [UIColor clearColor];
+    
+    self.animateRedLine = YES;
+    
+    CGRect fr = view.frame;
+    BOOL isIphone4 = fr.size.height == 480;
+    CGFloat offsetY = isIphone4 ? 70 : 50;
+    CGFloat focusSize = 180;
+    CGFloat focusHeight2 = (fr.size.height - focusSize) / 2;
+    CGFloat focusWidth2 = (fr.size.width - focusSize) / 2;
+    UIColor *lightColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha: 0.3];
+    
+    UIView *v1 = [[[UIView alloc] initWithFrame:CGRectMake(0, 0, fr.size.width, focusHeight2 - offsetY)] autorelease];
+    v1.backgroundColor = lightColor;
+    [controls addSubview:v1];
+    
+    UIView *v2 = [[[UIView alloc] initWithFrame:CGRectMake(0, fr.size.height - focusHeight2 - offsetY, fr.size.width, focusHeight2 + offsetY)] autorelease];
+    v2.backgroundColor = lightColor;
+    [controls addSubview:v2];
+    
+    UIView *v3 = [[[UIView alloc] initWithFrame:CGRectMake(0, focusHeight2 - offsetY, focusWidth2, focusSize)] autorelease];
+    v3.backgroundColor = lightColor;
+    [controls addSubview:v3];
+    
+    UIView *v4 = [[[UIView alloc] initWithFrame:CGRectMake(focusWidth2 + focusSize, focusHeight2 - offsetY, focusWidth2, focusSize)] autorelease];
+    v4.backgroundColor = lightColor;
+    [controls addSubview:v4];
+    
+    UIColor *lineColor = [UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha: 0.8];
+    {
+        CGFloat posX = focusWidth2 - 10;
+        CGFloat posY = focusHeight2 - offsetY - 10;
+        
+        UIView *v1 = [[[UIView alloc] initWithFrame:CGRectMake(posX, posY, 2, focusSize + 2 * 10)] autorelease];
+        v1.backgroundColor = lineColor;
+        [controls addSubview:v1];
+        
+        UIView *v2 = [[[UIView alloc] initWithFrame:CGRectMake(posX, posY, 15, 2)] autorelease];
+        v2.backgroundColor = lineColor;
+        [controls addSubview:v2];
+        
+        UIView *v3 = [[[UIView alloc] initWithFrame:CGRectMake(posX, posY + focusSize + 2 * 10 - 2, 15, 2)] autorelease];
+        v3.backgroundColor = lineColor;
+        [controls addSubview:v3];
+    }
+    
+    {
+        CGFloat posX = focusWidth2 + focusSize + 10 - 2;
+        CGFloat posY = focusHeight2 - offsetY - 10;
+        
+        UIView *v1 = [[[UIView alloc] initWithFrame:CGRectMake(posX, posY, 2, focusSize + 2 * 10)] autorelease];
+        v1.backgroundColor = lineColor;
+        [controls addSubview:v1];
+        
+        UIView *v2 = [[[UIView alloc] initWithFrame:CGRectMake(posX - 15 + 2, posY, 15, 2)] autorelease];
+        v2.backgroundColor = lineColor;
+        [controls addSubview:v2];
+        
+        UIView *v3 = [[[UIView alloc] initWithFrame:CGRectMake(posX - 15 + 2, posY + focusSize + 2 * 10 - 2, 15, 2)] autorelease];
+        v3.backgroundColor = lineColor;
+        [controls addSubview:v3];
+    }
+    
+    {
+        CGFloat posX = focusWidth2;
+        CGFloat posTopY = focusWidth2 - offsetY;
+        CGFloat posBottomY = fr.size.height - focusHeight2 - offsetY;
+        
+        redLine = [[UIView alloc] initWithFrame:CGRectMake(posX, posTopY, focusSize, 2)];
+        redLine.backgroundColor = [UIColor colorWithRed:255.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha: 0.4];
+        [controls addSubview:redLine];
+        
+        [self moveRedLineToPosY:posBottomY];
+    }
+    
+    [readerView setImageSize:fr.size];
+    
+    UIImageView *imgView = [[[UIImageView alloc] initWithFrame:CGRectMake((fr.size.width - 260) / 2, isIphone4 ? 10 : 30, 260, 60)] autorelease];
+    imgView.contentMode = UIViewContentModeScaleAspectFit;
+    imgView.image = [UIImage imageNamed:@"new_logo"];
+    [controls addSubview:imgView];
+    
+    UILabel *text3 = [[[UILabel alloc] initWithFrame:CGRectMake((fr.size.width - 200) / 2, fr.size.height - 50 - (isIphone4 ? 15 : 30) - 40 - 60 - 40, 140, 40)]autorelease];
+    text3.backgroundColor = [UIColor clearColor];
+    text3.text = NSLocalizedString(@"LS_TEXT_REMEMBER_ME", @"");
+    text3.font = [UIFont systemFontOfSize:16];
+    text3.textAlignment = NSTextAlignmentLeft;
+    text3.textColor = [UIColor whiteColor];
+    [controls addSubview:text3];
+    
+    UISwitch *rememberSwitch = [[[UISwitch alloc] initWithFrame:CGRectMake((fr.size.width - 200) / 2 + 150, fr.size.height - 50 - (isIphone4 ? 15 : 30) - 40 - 60 - 40 + 4, 50, 32)] autorelease];
+    rememberSwitch.on = isRememerMeOn;
+    [rememberSwitch addTarget:self action:@selector(switchChangedValue:) forControlEvents:UIControlEventValueChanged];
+    [rememberSwitch setOnTintColor:[UIColor colorWithRed:232.0/255.0 green:237.0/255.0 blue:168.0/255.0 alpha: 0.4]];
+    [controls addSubview:rememberSwitch];
+    
+    UILabel *text1 = [[[UILabel alloc] initWithFrame:CGRectMake((fr.size.width - 200) / 2, fr.size.height - 50 - (isIphone4 ? 15 : 30) - 40 - 60, 200, 50)] autorelease];
+    text1.backgroundColor = [UIColor clearColor];
+    text1.lineBreakMode = NSLineBreakByWordWrapping;
+    text1.numberOfLines = 2;
+    text1.font = [UIFont systemFontOfSize:16];
+    text1.text = NSLocalizedString(@"LS_TEXT_QR_READER_TEXT", @"");
+    text1.textAlignment = NSTextAlignmentCenter;
+    text1.textColor = [UIColor whiteColor];
+    [controls addSubview:text1];
+    
+    UILabel *text2 = [[[UILabel alloc] initWithFrame:CGRectMake((fr.size.width - 200) / 2, fr.size.height - 50 - (isIphone4 ? 15 : 30) - 50, 200, 40)] autorelease];
+    text2.backgroundColor = [UIColor clearColor];
+    text2.lineBreakMode = NSLineBreakByWordWrapping;
+    text2.numberOfLines = 2;
+    text2.text = NSLocalizedString(@"LS_TEXT_OR", @"");
+    text2.font = [UIFont fontWithName:@"HelveticaNeue-Thin" size:30.0f];
+    text2.textAlignment = NSTextAlignmentCenter;
+    text2.textColor = [UIColor whiteColor];
+    [controls addSubview:text2];
+    
+    UIButton *cancel = [[[UIButton alloc] initWithFrame:CGRectMake((fr.size.width - 274) / 2, fr.size.height - (isIphone4 ? 15 : 30) - 50, 274, 50)] autorelease];
+    cancel.layer.cornerRadius = 25.0;
+    [cancel setTitle:NSLocalizedString(@"LS_TEXT_QR_READER_CANCEL_TEXT", @"") forState:UIControlStateNormal];
+    cancel.backgroundColor = [UIColor colorWithRed:232.0/255.0 green:237.0/255.0 blue:168.0/255.0 alpha:1.0];
+    [cancel addTarget: self action: @selector(cancel) forControlEvents: UIControlEventTouchUpInside];
+    [cancel setTitleColor:[UIColor colorWithRed:25.0/255.0 green:62.0/255.0 blue:80.0/255.0 alpha: 1.0] forState:UIControlStateNormal];
+    cancel.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    [controls addSubview:cancel];
+    
     [view addSubview: controls];
+}
+
+- (void)switchChangedValue:(UISwitch *)sender {
+    if (readerDelegate) {
+        if ([readerDelegate respondsToSelector:@selector(rememberMeSwitchChangedValue:)]) {
+            [readerDelegate rememberMeSwitchChangedValue:sender];
+        }
+    }
+}
+
+- (void)moveRedLineToPosY:(CGFloat)posY {
+    if (!animateRedLine) {
+        return;
+    }
+    
+    CGRect fr = self.view.frame;
+    BOOL isIphone4 = fr.size.height <= 480;
+    CGFloat offsetY = isIphone4 ? 70 : 50;
+    CGFloat posX = (fr.size.width - 180) / 2;
+    CGFloat posTopY = (fr.size.height - 180) / 2 - offsetY;
+    CGFloat posBottomY = fr.size.height - (fr.size.height - 180) / 2 - offsetY;
+    
+    [UIView animateWithDuration:1.2 animations:^{
+        self->redLine.frame = CGRectMake(posX, posY, 180, 2);
+    } completion:^(BOOL finished) {
+        if (posY == posTopY) {
+            [self moveRedLineToPosY:posBottomY];
+        } else {
+            [self moveRedLineToPosY:posTopY];
+        }
+    }];
 }
 
 - (void) initVideoQuality
@@ -307,7 +430,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
         assert(0);
         return;
     }
-
+    
     AVCaptureSession *session = readerView.session;
     NSString *preset = AVSessionPresetForUIVideoQuality(videoQuality);
     if(session && preset && [session canSetSessionPreset: preset]) {
@@ -321,7 +444,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 - (void) loadView
 {
     self.view = [[UIView alloc]
-                    initWithFrame: CGRectMake(0, 0, 320, 480)];
+                 initWithFrame: CGRectMake(0, 0, 320, 480)];
 }
 
 - (void) viewDidLoad
@@ -330,22 +453,22 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     UIView *view = self.view;
     view.backgroundColor = [UIColor blackColor];
     view.autoresizingMask =
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight;
-
+    UIViewAutoresizingFlexibleWidth |
+    UIViewAutoresizingFlexibleHeight;
+    
     readerView = [[ZBarReaderView alloc]
-                     initWithImageScanner: scanner];
+                  initWithImageScanner: scanner];
     CGRect bounds = view.bounds;
     CGRect r = bounds;
     NSUInteger autoresize =
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight;
-
+    UIViewAutoresizingFlexibleWidth |
+    UIViewAutoresizingFlexibleHeight;
+    
     if(showsZBarControls ||
        self.parentViewController.modalViewController == self)
     {
         autoresize |= UIViewAutoresizingFlexibleBottomMargin;
-        r.size.height -= 54;
+        //r.size.height -= 44;
     }
     readerView.frame = r;
     readerView.autoresizingMask = autoresize;
@@ -354,34 +477,32 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
         readerView.device = device;
     readerView.torchMode = AVTorchModeForUIFlashMode(cameraFlashMode);
     [self initVideoQuality];
-
+    
     readerView.readerDelegate = (id<ZBarReaderViewDelegate>)self;
     readerView.scanCrop = scanCrop;
     readerView.previewTransform = cameraViewTransform;
     readerView.tracksSymbols = tracksSymbols;
     readerView.enableCache = enableCache;
     [view addSubview: readerView];
-
+    
     shutter = [[UIView alloc]
-                  initWithFrame: r];
+               initWithFrame: r];
     shutter.backgroundColor = [UIColor blackColor];
     shutter.opaque = NO;
     shutter.autoresizingMask =
-        UIViewAutoresizingFlexibleWidth |
-        UIViewAutoresizingFlexibleHeight;
+    UIViewAutoresizingFlexibleWidth |
+    UIViewAutoresizingFlexibleHeight;
     [view addSubview: shutter];
-
+    
     if(cameraOverlayView) {
         assert(!cameraOverlayView.superview);
         [cameraOverlayView removeFromSuperview];
         [view addSubview: cameraOverlayView];
     }
-
-    [self initControls];
-
+    
     if(TARGET_IPHONE_SIMULATOR) {
         cameraSim = [[ZBarCameraSimulator alloc]
-                        initWithViewController: self];
+                     initWithViewController: self];
         cameraSim.readerView = readerView;
     }
 }
@@ -393,27 +514,33 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     [super viewDidUnload];
 }
 
+- (void) viewDidAppear: (BOOL) animated
+{
+    [super viewWillAppear: animated];
+}
+
 - (void) viewWillAppear: (BOOL) animated
 {
+    [self initControls];
+    
     zlog(@"willAppear: anim=%d orient=%d",
          animated, self.interfaceOrientation);
-    [self initControls];
     [super viewWillAppear: animated];
-
+    
     [readerView willRotateToInterfaceOrientation: self.interfaceOrientation
-                duration: 0];
+                                        duration: 0];
     [readerView performSelector: @selector(start)
-                withObject: nil
-                afterDelay: .001];
+                     withObject: nil
+                     afterDelay: .001];
     shutter.alpha = 1;
     shutter.hidden = NO;
-
+    
     UIApplication *app = [UIApplication sharedApplication];
     BOOL willHideStatusBar =
-        !didHideStatusBar && self.wantsFullScreenLayout && !app.statusBarHidden;
+    !didHideStatusBar && self.wantsFullScreenLayout && !app.statusBarHidden;
     if(willHideStatusBar)
         [app setStatusBarHidden: YES
-             withAnimation: UIStatusBarAnimationFade];
+                  withAnimation: UIStatusBarAnimationFade];
     didHideStatusBar = didHideStatusBar || willHideStatusBar;
 }
 
@@ -421,8 +548,8 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 {
     if(didHideStatusBar) {
         [[UIApplication sharedApplication]
-            setStatusBarHidden: NO
-            withAnimation: UIStatusBarAnimationFade];
+         setStatusBarHidden: NO
+         withAnimation: UIStatusBarAnimationFade];
         didHideStatusBar = NO;
     }
     [super dismissModalViewControllerAnimated: animated];
@@ -431,14 +558,14 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 - (void) viewWillDisappear: (BOOL) animated
 {
     readerView.captureReader.enableReader = NO;
-
+    
     if(didHideStatusBar) {
         [[UIApplication sharedApplication]
-            setStatusBarHidden: NO
-            withAnimation: UIStatusBarAnimationFade];
+         setStatusBarHidden: NO
+         withAnimation: UIStatusBarAnimationFade];
         didHideStatusBar = NO;
     }
-
+    
     [super viewWillDisappear: animated];
 }
 
@@ -461,7 +588,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     rotating = YES;
     if(readerView)
         [readerView willRotateToInterfaceOrientation: orient
-                    duration: duration];
+                                            duration: duration];
 }
 
 - (void) willAnimateRotationToInterfaceOrientation: (UIInterfaceOrientation) orient
@@ -470,7 +597,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     zlog(@"willAnimateRotation: orient=%d #%g", orient, duration);
     if(helpController)
         [helpController willAnimateRotationToInterfaceOrientation: orient
-                        duration: duration];
+                                                         duration: duration];
     if(readerView)
         [readerView setNeedsLayout];
 }
@@ -482,7 +609,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
         // work around UITabBarController bug: willRotate is not called
         // for non-portrait initial interface orientation
         [readerView willRotateToInterfaceOrientation: self.interfaceOrientation
-                    duration: 0];
+                                            duration: 0];
         [readerView setNeedsLayout];
     }
     rotating = NO;
@@ -521,11 +648,11 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
 {
     UIView *oldview = cameraOverlayView;
     [oldview removeFromSuperview];
-
+    
     cameraOverlayView = [newview retain];
     if([self isViewLoaded] && newview)
         [self.view addSubview: newview];
-
+    
     [oldview release];
 }
 
@@ -543,9 +670,10 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     SEL cb = @selector(imagePickerControllerDidCancel:);
     if([readerDelegate respondsToSelector: cb])
         [readerDelegate
-            imagePickerControllerDidCancel: (UIImagePickerController*)self];
-    else
-        [self dismissModalViewControllerAnimated: YES];
+         imagePickerControllerDidCancel: (UIImagePickerController*)self];
+    
+    
+    [self dismissModalViewControllerAnimated: NO];
 }
 
 - (void) info
@@ -558,7 +686,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     if(helpController)
         return;
     helpController = [[ZBarHelpController alloc]
-                         initWithReason: reason];
+                      initWithReason: reason];
     helpController.delegate = (id<ZBarHelpDelegate>)self;
     helpController.wantsFullScreenLayout = YES;
     UIView *helpView = helpController.view;
@@ -567,7 +695,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     [helpController viewWillAppear: YES];
     [self.view addSubview: helpView];
     [UIView beginAnimations: @"ZBarHelp"
-            context: nil];
+                    context: nil];
     helpController.view.alpha = 1;
     [UIView commitAnimations];
 }
@@ -626,7 +754,7 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
     assert(help == helpController);
     [help viewWillDisappear: YES];
     [UIView beginAnimations: @"ZBarHelp"
-            context: NULL];
+                    context: NULL];
     [UIView setAnimationDelegate: self];
     [UIView setAnimationDidStopSelector: @selector(removeHelp:done:context:)];
     help.view.alpha = 0;
@@ -652,40 +780,40 @@ AVSessionPresetForUIVideoQuality (UIImagePickerControllerQualityType quality)
           fromImage: (UIImage*) image
 {
     [readerDelegate
-        imagePickerController: (UIImagePickerController*)self
-        didFinishPickingMediaWithInfo:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                image, UIImagePickerControllerOriginalImage,
-                syms, ZBarReaderControllerResults,
-                nil]];
+     imagePickerController: (UIImagePickerController*)self
+     didFinishPickingMediaWithInfo:
+     [NSDictionary dictionaryWithObjectsAndKeys:
+      image, UIImagePickerControllerOriginalImage,
+      syms, ZBarReaderControllerResults,
+      nil]];
 }
 
 - (void) readerViewDidStart: (ZBarReaderView*) readerView
 {
     if(!shutter.hidden)
         [UIView animateWithDuration: .25
-                animations: ^{
-                    shutter.alpha = 0;
-                }
-                completion: ^(BOOL finished) {
-                    shutter.hidden = YES;
-                }];
+                         animations: ^{
+                             shutter.alpha = 0;
+                         }
+                         completion: ^(BOOL finished) {
+                             shutter.hidden = YES;
+                         }];
 }
 
 
 // "deprecated" properties
 
 #define DEPRECATED_PROPERTY(getter, setter, type, val, ignore) \
-    - (type) getter                                    \
-    {                                                  \
-        return(val);                                   \
-    }                                                  \
-    - (void) setter: (type) v                          \
-    {                                                  \
-        NSAssert2(ignore || v == val,                  \
-                  @"attempt to set unsupported value (%d)" \
-                  @" for %@ property", val, @#getter); \
-    }
+- (type) getter                                    \
+{                                                  \
+return(val);                                   \
+}                                                  \
+- (void) setter: (type) v                          \
+{                                                  \
+NSAssert2(ignore || v == val,                  \
+@"attempt to set unsupported value (%d)" \
+@" for %@ property", val, @#getter); \
+}
 
 DEPRECATED_PROPERTY(sourceType, setSourceType, UIImagePickerControllerSourceType, UIImagePickerControllerSourceTypeCamera, NO)
 DEPRECATED_PROPERTY(allowsEditing, setAllowsEditing, BOOL, NO, NO)

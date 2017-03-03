@@ -89,7 +89,7 @@ CGImageRef UIGetScreenImage(void);
     overlay.backgroundColor = [UIColor clearColor];
 
     CGRect r = bounds;
-    r.size.height -= 54;
+    r.size.height -= 44;
     boxView = [[UIView alloc] initWithFrame: r];
 
     boxLayer = [CALayer new];
@@ -101,7 +101,7 @@ CGImageRef UIGetScreenImage(void);
     toolbar = [UIToolbar new];
     toolbar.barStyle = UIBarStyleBlackOpaque;
     r.origin.y = r.size.height;
-    r.size.height = 54;
+    r.size.height = 44;
     toolbar.frame = r;
 
     cancelBtn = [[UIBarButtonItem alloc]
@@ -513,7 +513,7 @@ CGImageRef UIGetScreenImage(void);
     if(r.size.width > r.size.height)
         r.size.width -= 54;
     else
-        r.size.height -= 54;
+        r.size.height -= 44;
     CGImageRef preview = CGImageCreateWithImageInRect(screen, r);
     CGImageRelease(screen);
 

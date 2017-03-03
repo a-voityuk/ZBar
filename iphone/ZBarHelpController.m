@@ -105,10 +105,15 @@
                                 UIViewAutoresizingFlexibleHeight |
                                 UIViewAutoresizingFlexibleTopMargin);
 
+    
+    
+    UIButton *done = [[[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, 44)] autorelease];
+    [done addTarget: self action: @selector(dismiss) forControlEvents: UIControlEventTouchUpInside];
+    [done setTitle:NSLocalizedString(@"LS_BUTTON_DONE", @"") forState:UIControlStateNormal];
+    [done setTitleColor:[UIColor colorWithRed:0.0/255.0 green:122.0/255.0 blue:255.0/255.0 alpha: 1] forState:UIControlStateNormal];
+    
     doneBtn = [[UIBarButtonItem alloc]
-                  initWithBarButtonSystemItem: UIBarButtonSystemItemDone
-                  target: self
-                  action: @selector(dismiss)];
+                initWithCustomView: done];
 
     backBtn = [[UIBarButtonItem alloc]
                   initWithImage: [UIImage imageNamed: @"zbar-back.png"]

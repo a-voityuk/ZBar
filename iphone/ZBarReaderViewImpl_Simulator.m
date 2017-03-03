@@ -73,6 +73,7 @@
     simLabel.autoresizingMask =
         UIViewAutoresizingFlexibleWidth |
         UIViewAutoresizingFlexibleHeight;
+    simLabel.hidden = YES;
     [self addSubview: simLabel];
 
     preview = [CALayer new];

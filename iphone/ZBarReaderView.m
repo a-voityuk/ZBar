@@ -76,7 +76,7 @@
     tracking.backgroundColor = [UIColor clearColor].CGColor;
     [overlay addSublayer: tracking];
 
-    trackingColor = [[UIColor greenColor]
+    trackingColor = [[UIColor clearColor]
                         retain];
     tracking.borderColor = trackingColor.CGColor;
 
